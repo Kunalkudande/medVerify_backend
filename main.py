@@ -20,8 +20,17 @@ MODEL_PATH = "medical_deepfake_cnn.keras"
 def download_model():
     if not Path(MODEL_PATH).exists() or os.path.getsize(MODEL_PATH) < 500000:  # Check if file exists and is at least 500KB
         print("🔄 Downloading model from Google Drive...")
+        
+        # Google Drive direct download link handler
+        session = requests.Session()
         url = f"https://drive.google.com/uc?export=download&id={FILE_ID}"
-        response = requests.get(url, stream=True)
+        response = session.get(url, stream=True)
+
+        # Handle Google Drive confirmation page
+        for key, value in response.cookies.items():
+            if "download_warning" in key:
+                url = f"https://drive.google.com/uc?export=download&id={FILE_ID}&confirm={value}"
+                response = session.get(url, stream=True)
 
         if response.status_code == 200:
             with open(MODEL_PATH, "wb") as f:
