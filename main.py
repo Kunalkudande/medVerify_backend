@@ -17,10 +17,11 @@ MODEL_PATH = "medical_deepfake_cnn.keras"
 
 # ✅ Function to download model from Google Drive
 def download_model():
-    if not Path(MODEL_PATH).exists():  # Download only if the model is missing
+    if not Path(MODEL_PATH).exists() or os.path.getsize(MODEL_PATH) < 500000:  # Check if file exists and is at least 500KB
         print("🔄 Downloading model from Google Drive...")
         url = f"https://drive.google.com/uc?export=download&id={FILE_ID}"
         response = requests.get(url, stream=True)
+
         if response.status_code == 200:
             with open(MODEL_PATH, "wb") as f:
                 for chunk in response.iter_content(1024):
@@ -28,14 +29,24 @@ def download_model():
             print("✅ Model downloaded successfully!")
         else:
             print("❌ Failed to download model!")
+            return False  # Prevents loading a broken model
+
+    return True  # Download successful
 
 # ✅ Lazy Loading: Load model only when needed
 model = None
+
 def get_model():
     global model
     if model is None:
-        download_model()  # Ensure model is downloaded
-        model = tf.keras.models.load_model(MODEL_PATH)
+        success = download_model()
+        if success:  # Only load if the model is downloaded successfully
+            try:
+                model = tf.keras.models.load_model(MODEL_PATH)
+                print("✅ Model loaded successfully!")
+            except Exception as e:
+                print(f"❌ Model loading failed: {e}")
+                model = None  # Prevent crashing if model fails to load
     return model
 
 # ✅ Class labels
