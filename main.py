@@ -7,6 +7,7 @@ import shutil
 import uvicorn
 from pathlib import Path
 import requests  # ✅ Import requests (Fixes the error)
+import os
 
 # ✅ Initialize FastAPI
 app = FastAPI()
