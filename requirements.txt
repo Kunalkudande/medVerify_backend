@@ -1,7 +1,7 @@
 fastapi
 uvicorn
+tensorflow-cpu==2.10.0
 opencv-python
 numpy
-nest_asyncio
 requests
-tensorflow
+python-multipart
